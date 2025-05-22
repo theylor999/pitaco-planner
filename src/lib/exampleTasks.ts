@@ -20,8 +20,8 @@ export const getExampleTasks = (): Omit<Task, 'id' | 'completed' | 'createdAt'>[
     dayOffset: number; // 0 for Monday, 1 for Tuesday, etc., relative to week start
   }> = [
     { title: 'Reunião de Planejamento Semanal', description: 'Discutir metas e prioridades da semana.', taskTime: '09:00', priority: 'high', icon: 'Users', dayOffset: 0 },
-    { title: 'Comprar mantimentos essenciais', description: 'Lista: Leite, pão, ovos, frutas, vegetais.', taskTime: '18:00', priority: 'medium', icon: 'ShoppingCart', dayOffset: 0 },
-    { title: 'Sessão de Treino na Academia', description: 'Foco em cardio e pesos leves.', taskTime: '07:00', priority: 'medium', icon: 'Dumbbell', dayOffset: 1 },
+    { title: 'Comprar mantimentos essenciais', description: 'Lista: Leite, pão, ovos, frutas, vegetais.', taskTime: '18:00', priority: 'medium', icon: 'ShoppingCart', dayOffset: 5 },
+    { title: 'Sessão de Treino na Academia', description: 'Foco em cardio e pesos leves.', taskTime: '07:00', priority: 'medium', icon: 'Dumbbell', dayOffset: 4 },
     { title: 'Contratar o novo Product Engineer do Rei do Pitaco', description: 'Theylor Machado parece ser uma boa opção.', taskTime: '14:00', priority: 'high', icon: 'Briefcase', dayOffset: 2 },
     { title: 'Ligar para o mecânico', description: 'Agendar revisão anual do carro.', taskTime: '10:00', priority: 'high', icon: 'Car', dayOffset: 4 },
     { title: 'Planejar viagem de fim de semana', description: 'Pesquisar acomodações e atividades.', priority: 'low', icon: 'Plane', dayOffset: 4 },
