@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Header } from '@/components/pitaco-planner/Header';
@@ -52,19 +51,17 @@ export default function PitacoPlannerPage() {
   const [gameEventsData, setGameEventsData] = useState<GameEvent[]>(mockGameEvents);
   const { toast } = useToast();
 
-  const [selectedDate, setSelectedDate] = useState(startOfWeek(new Date(), { locale: { code: 'pt-BR' }})); // Default to current week
-  const [currentView, setCurrentView] = useState<CalendarViewMode>('week'); // Default to week view
+  const [selectedDate, setSelectedDate] = useState(startOfWeek(new Date(), { locale: { code: 'pt-BR' }}));
+  const [currentView, setCurrentView] = useState<CalendarViewMode>('week');
   const [highlightedEventId, setHighlightedEventId] = useState<string | null>(null);
   const [showAllPending, setShowAllPending] = useState<boolean>(false);
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all');
   const [showCompletedInCalendar, setShowCompletedInCalendar] = useState<boolean>(false);
   
-  // State for editing tasks, one for each tab's form instance
   const [editingTaskOnTasksTab, setEditingTaskOnTasksTab] = useState<Task | null>(null);
   const [editingTaskInCalendar, setEditingTaskInCalendar] = useState<Task | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("tasks"); // Default to tasks tab
+  const [activeTab, setActiveTab] = useState<string>("tasks"); 
 
-  // State for confirmation dialogs
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogAction, setDialogAction] = useState<SettingsActionType>(null);
   const [dialogTitle, setDialogTitle] = useState('');
@@ -72,31 +69,28 @@ export default function PitacoPlannerPage() {
   const [taskToDeleteId, setTaskToDeleteId] = useState<string | null>(null);
 
 
-  // Clear highlight after a short delay
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (highlightedEventId) {
       timer = setTimeout(() => {
         setHighlightedEventId(null);
-      }, 2000); // 2 seconds
+      }, 2000); 
     }
     return () => clearTimeout(timer);
   }, [highlightedEventId]);
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
-    setHighlightedEventId(null); // Clear highlight when date changes
+    setHighlightedEventId(null); 
   };
 
   const handleViewChange = (view: CalendarViewMode) => {
     setCurrentView(view);
-    // If switching to week or month, set to the start of the *current* week/month
     if (view === 'week') {
       setSelectedDate(startOfWeek(new Date(), { locale: { code: 'pt-BR' }}));
     } else if (view === 'month') {
       setSelectedDate(startOfMonth(new Date()));
     } else if (view === 'day' && (currentView === 'week' || currentView === 'month')) {
-       // If switching from week/month to day, keep the selectedDate (likely a day picked from calendar)
        setSelectedDate(selectedDate); 
     }
     setHighlightedEventId(null); 
@@ -107,66 +101,59 @@ export default function PitacoPlannerPage() {
       setSelectedDate(current => direction === 'prev' ? subDays(current, 1) : addDays(current, 1));
     } else if (currentView === 'week') {
       setSelectedDate(current => direction === 'prev' ? subWeeks(current, 1) : addWeeks(current, 1));
-    } else { // month view
+    } else { 
       setSelectedDate(current => direction === 'prev' ? subMonths(current, 1) : addMonths(current, 1));
     }
     setHighlightedEventId(null); 
   };
 
-  // Form submission from the "Tasks" tab
   const handleTasksTabFormSubmit = (data: Omit<Task, 'id' | 'completed' | 'createdAt'>) => {
      if (editingTaskOnTasksTab) {
         updateTask({ ...editingTaskOnTasksTab, ...data });
         toast({ title: "Tarefa Atualizada!", description: `"${data.title}" foi atualizada.` });
-        setEditingTaskOnTasksTab(null); // Clear editing state for this form
+        setEditingTaskOnTasksTab(null); 
      } else {
         addTask(data);
         toast({ title: "Tarefa Adicionada!", description: `"${data.title}" foi adicionada com sucesso.` });
      }
   };
 
-  // Form submission from the "Calendar" tab (when editing a task there)
   const handleCalendarTabFormSubmit = (data: Omit<Task, 'id' | 'completed' | 'createdAt'>) => {
     if (editingTaskInCalendar) {
        updateTask({ ...editingTaskInCalendar, ...data });
        toast({ title: "Tarefa Atualizada!", description: `"${data.title}" foi atualizada no calendário.` });
-       setEditingTaskInCalendar(null); // Clear editing state and hide form
+       setEditingTaskInCalendar(null); 
     }
  };
 
-  // Initiates editing a task from the TaskList (Tasks tab)
   const handleEditTaskFromList = (taskToEdit: Task) => {
     setEditingTaskOnTasksTab(taskToEdit);
-    setEditingTaskInCalendar(null); // Ensure calendar edit form is not active
-    setActiveTab('tasks'); // Switch to tasks tab if not already there
+    setEditingTaskInCalendar(null); 
+    setActiveTab('tasks'); 
   };
 
-  // Initiates editing a task from the Calendar's DayView
   const handleEditTaskFromCalendar = (taskToEdit: Task) => {
     setEditingTaskInCalendar(taskToEdit);
-    setEditingTaskOnTasksTab(null); // Ensure tasks tab edit form is not active
-    setActiveTab('calendar'); // Stay on calendar tab
+    setEditingTaskOnTasksTab(null); 
+    setActiveTab('calendar'); 
   };
 
-  // Switches to week view, typically from DayView
   const switchToWeekViewHandler = useCallback((date: Date) => {
     setSelectedDate(startOfWeek(date, { locale: { code: 'pt-BR' }}));
     setCurrentView('week');
     setHighlightedEventId(null);
   }, []);
 
-  // Switches to month view, typically from WeekView
   const switchToMonthViewHandler = useCallback(() => {
-    setSelectedDate(startOfMonth(new Date())); // Go to current month
+    setSelectedDate(startOfMonth(new Date())); 
     setCurrentView('month');
     setHighlightedEventId(null);
   }, []);
 
-  // When an event (task/game) is selected from WeekView or MonthView
   const handleEventSelect = useCallback((date: Date, eventId: string) => {
-    setSelectedDate(date);         // Set the date of the event
-    setCurrentView('day');         // Switch to day view
-    setHighlightedEventId(eventId); // Highlight the selected event
+    setSelectedDate(date);        
+    setCurrentView('day');        
+    setHighlightedEventId(eventId); 
   }, []);
 
   const toggleShowAllPendingHandler = useCallback(() => {
@@ -181,7 +168,6 @@ export default function PitacoPlannerPage() {
     setShowCompletedInCalendar(prev => !prev);
   }, []);
 
-  // Opens the confirmation dialog for settings actions
   const openConfirmationDialog = (action: SettingsActionType, title: string, description: string) => {
     setDialogAction(action);
     setDialogTitle(title);
@@ -195,7 +181,6 @@ export default function PitacoPlannerPage() {
     toast({ title: "Tarefas de Exemplo Adicionadas!", description: `${examples.length} tarefas foram adicionadas para a semana atual.` });
   };
 
-  // Prepares confirmation for resetting tasks and restoring default games
   const handleResetToDefaultKeepGames = () => {
     openConfirmationDialog(
       'resetToDefaultKeepGames', 
@@ -204,7 +189,6 @@ export default function PitacoPlannerPage() {
     );
   };
 
-  // Prepares confirmation for clearing ALL data (tasks and games)
   const handleClearAllPlannerData = () => {
     openConfirmationDialog(
       'clearAllPlannerData', 
@@ -213,9 +197,8 @@ export default function PitacoPlannerPage() {
     );
   };
   
-  // Prepares confirmation for deleting a task from the calendar view
   const handleRequestDeleteTaskFromCalendar = (taskIdToDelete: string) => {
-    setTaskToDeleteId(taskIdToDelete); // Store ID of task to delete
+    setTaskToDeleteId(taskIdToDelete); 
     openConfirmationDialog(
       'deleteTaskFromCalendar',
       'Confirmar Exclusão de Tarefa',
@@ -223,26 +206,24 @@ export default function PitacoPlannerPage() {
     );
   };
   
-  // Executes the action confirmed in the dialog
   const confirmDialogAction = () => {
     if (dialogAction === 'resetToDefaultKeepGames') {
       clearUserTasks();
-      setGameEventsData(mockGameEvents); // Restore default games
+      setGameEventsData(mockGameEvents); 
       toast({ title: "Aplicativo Resetado!", description: "Suas tarefas foram limpas e os jogos padrão foram restaurados." });
     } else if (dialogAction === 'clearAllPlannerData') {
       clearUserTasks();
-      setGameEventsData([]); // Clear all games
+      setGameEventsData([]); 
       toast({ title: "Todos os Dados Removidos!", description: "Suas tarefas e jogos foram limpos com sucesso.", variant: "destructive" });
     } else if (dialogAction === 'deleteTaskFromCalendar' && taskToDeleteId) {
       deleteTask(taskToDeleteId);
       toast({ title: "Tarefa Removida!", description: "A tarefa foi removida com sucesso.", variant: "destructive" });
-      setTaskToDeleteId(null); // Clear stored ID
+      setTaskToDeleteId(null); 
     }
     setDialogOpen(false);
     setDialogAction(null);
   };
 
-  // Actions passed to the Header component for the settings menu
   const headerActions: SettingsActions = {
     onAddExampleTasks: handleAddExampleTasks,
     onResetToDefaultKeepGames: handleResetToDefaultKeepGames,
@@ -265,36 +246,49 @@ export default function PitacoPlannerPage() {
           </TabsList>
 
           <TabsContent value="tasks">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-1">
-                <h2 className="text-2xl font-semibold mb-4 text-primary">
-                  {editingTaskOnTasksTab ? 'Editar Tarefa' : 'Adicionar Nova Tarefa'}
+            {editingTaskOnTasksTab ? (
+              // Focused Edit View for Tasks Tab
+              <div className="max-w-2xl mx-auto"> 
+                <h2 className="text-2xl font-semibold mb-4 text-primary flex items-center">
+                  <Edit3 className="mr-2 h-6 w-6" /> Editar Tarefa
                 </h2>
-                <TaskForm 
-                  onSubmit={handleTasksTabFormSubmit} 
+                <TaskForm
+                  onSubmit={handleTasksTabFormSubmit}
                   initialData={editingTaskOnTasksTab}
-                  onCancel={() => setEditingTaskOnTasksTab(null)} // Clear editing state for this tab's form
+                  onCancel={() => setEditingTaskOnTasksTab(null)}
                 />
               </div>
-              <div className="lg:col-span-2">
-                 <ScrollArea className="h-[calc(100vh-280px)] lg:h-[calc(100vh-220px)] pr-3">
-                  <TaskList
-                    tasks={tasks}
-                    gameEvents={gameEventsData}
-                    onToggleComplete={toggleTaskCompletion}
-                    onDelete={(id) => { deleteTask(id); toast({title: "Tarefa Removida", variant: "destructive"}); }}
-                    onEditTask={handleEditTaskFromList} // Use the specific handler for this tab
-                    isLoading={!tasksLoaded}
-                    showAllPending={showAllPending}
-                    onToggleShowAllPending={toggleShowAllPendingHandler}
+            ) : (
+              // Default View for Tasks Tab (Add Task + Task List)
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-1">
+                  <h2 className="text-2xl font-semibold mb-4 text-primary">
+                    Adicionar Nova Tarefa
+                  </h2>
+                  <TaskForm
+                    onSubmit={handleTasksTabFormSubmit}
+                    initialData={null}
                   />
-                </ScrollArea>
+                </div>
+                <div className="lg:col-span-2">
+                  <ScrollArea className="h-[calc(100vh-280px)] lg:h-[calc(100vh-220px)] pr-3">
+                    <TaskList
+                      tasks={tasks}
+                      gameEvents={gameEventsData}
+                      onToggleComplete={toggleTaskCompletion}
+                      onDelete={(id) => { deleteTask(id); toast({title: "Tarefa Removida", variant: "destructive"}); }}
+                      onEditTask={handleEditTaskFromList}
+                      isLoading={!tasksLoaded}
+                      showAllPending={showAllPending}
+                      onToggleShowAllPending={toggleShowAllPendingHandler}
+                    />
+                  </ScrollArea>
+                </div>
               </div>
-            </div>
+            )}
           </TabsContent>
 
           <TabsContent value="calendar">
-            {/* Show calendar views and controls only if NOT editing a task within the calendar tab */}
             {!editingTaskInCalendar && (
               <>
                 <CalendarControls
@@ -308,15 +302,14 @@ export default function PitacoPlannerPage() {
                   showCompleted={showCompletedInCalendar}
                   onToggleShowCompleted={toggleShowCompletedInCalendarHandler}
                 />
-                {/* Reduced calendar height */}
                 <ScrollArea className="h-[calc(100vh-370px)] lg:h-[calc(100vh-330px)] mt-1">
                   {currentView === 'day' && (
                     <DayView 
                       selectedDate={selectedDate} 
                       tasks={tasks} 
                       gameEvents={gameEventsData}
-                      onEditTask={handleEditTaskFromCalendar} // Use specific handler for calendar edit
-                      onDeleteTask={handleRequestDeleteTaskFromCalendar} // Request confirmation for delete
+                      onEditTask={handleEditTaskFromCalendar} 
+                      onDeleteTask={handleRequestDeleteTaskFromCalendar} 
                       onToggleCompleteTask={toggleTaskCompletion}
                       onSwitchToWeek={switchToWeekViewHandler}
                       highlightedEventId={highlightedEventId}
@@ -329,12 +322,12 @@ export default function PitacoPlannerPage() {
                       selectedDate={selectedDate} 
                       tasks={tasks} 
                       gameEvents={gameEventsData}
-                      onDateChange={(date) => { // Clicking a day in WeekView switches to DayView
+                      onDateChange={(date) => { 
                         setSelectedDate(date);
                         setCurrentView('day');
                         setHighlightedEventId(null);
                       }}
-                      onEventSelect={handleEventSelect} // Clicking an event in WeekView
+                      onEventSelect={handleEventSelect} 
                       onSwitchToMonth={switchToMonthViewHandler}
                       priorityFilter={priorityFilter}
                       showCompleted={showCompletedInCalendar}
@@ -345,12 +338,12 @@ export default function PitacoPlannerPage() {
                       selectedDate={selectedDate} 
                       tasks={tasks} 
                       gameEvents={gameEventsData}
-                      onDateSelect={(date) => { // Clicking a day in MonthView switches to DayView
+                      onDateSelect={(date) => { 
                         setSelectedDate(date);
                         setCurrentView('day'); 
                         setHighlightedEventId(null);
                       }}
-                      onEventSelect={handleEventSelect} // Clicking an event in MonthView
+                      onEventSelect={handleEventSelect} 
                       priorityFilter={priorityFilter}
                       showCompleted={showCompletedInCalendar}
                     />
@@ -358,7 +351,6 @@ export default function PitacoPlannerPage() {
                 </ScrollArea>
               </>
             )}
-            {/* Show TaskForm within Calendar tab if editingTaskInCalendar is set */}
             {editingTaskInCalendar && (
               <div className="mt-4">
                 <div className="flex justify-between items-center mb-4">
@@ -367,9 +359,9 @@ export default function PitacoPlannerPage() {
                     </h2>
                 </div>
                 <TaskForm
-                  onSubmit={handleCalendarTabFormSubmit} // Use specific submit handler
+                  onSubmit={handleCalendarTabFormSubmit} 
                   initialData={editingTaskInCalendar}
-                  onCancel={() => setEditingTaskInCalendar(null)} // Clear state to hide form
+                  onCancel={() => setEditingTaskInCalendar(null)} 
                 />
               </div>
             )}
@@ -391,7 +383,6 @@ export default function PitacoPlannerPage() {
             <AlertDialogCancel onClick={() => { setDialogAction(null); setTaskToDeleteId(null); }}>Cancelar</AlertDialogCancel>
             <AlertDialogAction 
               onClick={confirmDialogAction} 
-              // Apply destructive style for specific actions
               className={(dialogAction === 'clearAllPlannerData' || dialogAction === 'deleteTaskFromCalendar') ? 'bg-destructive hover:bg-destructive/90' : ''}>
               Confirmar
             </AlertDialogAction>
