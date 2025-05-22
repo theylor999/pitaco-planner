@@ -18,6 +18,9 @@ Pitaco Planner é um organizador de tarefas pessoais com um toque esportivo, per
 ### Tela de edição de tarefas
 ![Tela de edição de tarefas](imgs/edicao.png)
 
+### Exemplo de eventos esportivos e do botão que redireciona para o Rei do Pitaco
+![Eventos esportivos e Dar Pitaco](imgs/pitaco.png)
+
 **Funcionalidades demonstradas:**
 *   Criação e gerenciamento de tarefas.
 *   Visualização em calendário (dia, semana, mês).
