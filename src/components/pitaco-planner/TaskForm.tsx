@@ -24,20 +24,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, PlusCircle, Edit3, Clock } from 'lucide-react'; // Added Clock icon
+import { CalendarIcon, PlusCircle, Edit3, Clock } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns'; // Importar parseISO
 import { ptBR } from 'date-fns/locale';
 import { taskIconsList, defaultTaskIconValue } from '@/lib/icons';
 
-// Schema for task form validation
+// Schema para validação do formulário de tarefas
 const taskFormSchema = z.object({
   title: z.string().min(1, { message: 'O título é obrigatório.' }).max(100, { message: 'O título deve ter no máximo 100 caracteres.'}),
   description: z.string().max(500, { message: 'A descrição deve ter no máximo 500 caracteres.'}).optional(),
   taskDate: z.date({ required_error: 'A data da tarefa é obrigatória.' }),
-  taskTime: z.string().optional().refine(val => { // Optional: refine to check HH:mm format if needed
-    if (!val || val === '') return true; // Allow empty string (no time)
+  taskTime: z.string().optional().refine(val => {
+    if (!val || val === '') return true;
     return /^([01]\d|2[0-3]):([0-5]\d)$/.test(val);
   }, { message: "Formato de hora inválido. Use HH:MM." }),
   priority: z.enum(['high', 'medium', 'low'], { required_error: 'A prioridade é obrigatória.' }),
@@ -48,44 +48,44 @@ type TaskFormValues = z.infer<typeof taskFormSchema>;
 
 interface TaskFormProps {
   onSubmit: (data: Omit<Task, 'id' | 'completed' | 'createdAt'>) => void;
-  initialData?: Task | null; // For editing existing tasks
-  onCancel?: () => void; // To handle cancellation of edit
+  initialData?: Task | null; // Para editar tarefas existentes
+  onCancel?: () => void; // Para lidar com o cancelamento da edição
 }
 
 export function TaskForm({ onSubmit, initialData, onCancel }: TaskFormProps) {
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
     defaultValues: initialData
-      ? { // Pre-fill form if editing
+      ? { // Preenche o formulário se estiver editando
           ...initialData,
-          taskDate: new Date(initialData.taskDate), // Convert date string back to Date object
-          taskTime: initialData.taskTime || '', // Ensure taskTime is a string for the input
+          taskDate: initialData.taskDate ? parseISO(initialData.taskDate) : new Date(), // Usar parseISO
+          taskTime: initialData.taskTime || '', 
           icon: initialData.icon || defaultTaskIconValue,
         }
-      : { // Default values for new task
+      : { // Valores padrão para nova tarefa
           title: '',
           description: '',
           priority: 'medium',
-          taskTime: '', // Empty string for the input
+          taskTime: '', 
           icon: defaultTaskIconValue,
-          // taskDate is undefined initially, user must pick one
+          // taskDate é undefined inicialmente, o usuário deve escolher uma
         },
   });
 
   const handleSubmit = (data: TaskFormValues) => {
     onSubmit({
       ...data,
-      taskDate: format(data.taskDate, 'yyyy-MM-dd'), // Format date to YYYY-MM-DD string
-      taskTime: data.taskTime || undefined, // Convert empty string to undefined
+      taskDate: format(data.taskDate, 'yyyy-MM-dd'), // Formata a data para string YYYY-MM-DD
+      taskTime: data.taskTime || undefined, // Converte string vazia para undefined
       icon: data.icon || defaultTaskIconValue,
     });
     if (!initialData) { 
-      // Reset form only if it was an "add new" submission
+      // Reseta o formulário apenas se foi uma submissão de "adicionar novo"
       form.reset({ 
         title: '', 
         description: '', 
         priority: 'medium', 
-        taskDate: undefined, // Clear date field to prompt new selection
+        taskDate: undefined, 
         taskTime: '', 
         icon: defaultTaskIconValue 
       });
@@ -153,7 +153,7 @@ export function TaskForm({ onSubmit, initialData, onCancel }: TaskFormProps) {
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) => date < new Date(new Date().setHours(0,0,0,0)) } // Disable past dates
+                      disabled={(date) => date < new Date(new Date().setHours(0,0,0,0)) } // Desabilita datas passadas
                       initialFocus
                       locale={ptBR}
                     />
@@ -163,7 +163,6 @@ export function TaskForm({ onSubmit, initialData, onCancel }: TaskFormProps) {
               </FormItem>
             )}
           />
-          {/* Time input */}
           <FormField
             control={form.control}
             name="taskTime"
@@ -175,7 +174,7 @@ export function TaskForm({ onSubmit, initialData, onCancel }: TaskFormProps) {
                     <Input 
                       type="time" 
                       {...field} 
-                      className="pl-10" // Add padding for the icon
+                      className="pl-10" 
                     />
                   </FormControl>
                   <Clock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
@@ -214,7 +213,7 @@ export function TaskForm({ onSubmit, initialData, onCancel }: TaskFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Ícone da Tarefa</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || defaultTaskIconValue}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Escolha um ícone" />
@@ -237,7 +236,6 @@ export function TaskForm({ onSubmit, initialData, onCancel }: TaskFormProps) {
             />
         </div>
         <div className="flex justify-end space-x-3 pt-2">
-          {/* Show cancel button only if editing and onCancel is provided */}
           {initialData && onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancelar
