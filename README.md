@@ -6,12 +6,16 @@ Pitaco Planner é um organizador de tarefas pessoais com um toque esportivo, per
 
 ## Visão Geral do Aplicativo (Screenshots/Vídeos)
 
+### Tela principal de tarefas
 ![Tela principal de tarefas](imgs/tela_principal.png)
 
+### Visualização do calendário mensal
 ![Calendário](imgs/calendario.png)
 
+### Visualização do calendário semanal
 ![Calendário Semanal](imgs/semana.png)
 
+### Tela de edição de tarefas
 ![Tela de edição de tarefas](imgs/edicao.png)
 
 **Funcionalidades demonstradas:**
